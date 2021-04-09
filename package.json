@@ -3,7 +3,7 @@
   "displayName": "Status Bar Env Var",
   "description": "Display an environment variable value in the status bar.",
   "license": "MIT",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "author": "Leigh McCulloch",
   "publisher": "leighmcculloch",
   "repository": {
@@ -14,6 +14,7 @@
   "engines": {
     "vscode": "^1.55.0"
   },
+  "extensionKind": ["ui"],
   "categories": [
     "Other"
   ],
