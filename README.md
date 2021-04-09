@@ -1,6 +1,12 @@
+<img src=resources/icon.png width=200 />
+
 # VSCode Extension: Status Bar Env Var
 
 Display system environment variables that VSCode is running in the context of in the status bar.
+
+## Install
+
+https://marketplace.visualstudio.com/items?itemName=leighmcculloch.status-bar-env-var
 
 ## Usage
 
