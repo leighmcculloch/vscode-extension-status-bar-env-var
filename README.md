@@ -1,4 +1,4 @@
-<img src=resources/icon.png width=200 />
+<img src="./resources/icon.png" width="200" />
 
 # VSCode Extension: Status Bar Env Var
 
