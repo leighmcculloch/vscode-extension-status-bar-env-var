@@ -3,9 +3,12 @@
   "displayName": "Status Bar Env Var",
   "description": "Display an environment variable value in the status bar.",
   "license": "MIT",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "author": "Leigh McCulloch",
   "publisher": "leighmcculloch",
+  "contributors": [
+    "Seppe Stas"
+  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/leighmcculloch/vscode-extension-status-bar-env-var"
@@ -19,7 +22,7 @@
     "Other"
   ],
   "activationEvents": [
-    "*"
+    "onStartupFinished"
   ],
   "contributes": {
     "configuration": [
@@ -27,14 +30,24 @@
         "title": "Status Bar Env Var",
         "properties": {
           "statusBarEnvVar.environmentVariableNames": {
-            "type": "string",
-            "default": "DOCKER_HOST",
-            "description": "A comma-separated list of environment variables to display in the status bar.",
-            "scope": "application"
+            "type": "array",
+            "scope": "application",
+            "title": "Environmental variables",
+            "description": "List of environment variables to display in the status bar.",
+            "items": {
+              "type": "string",
+              "format": "NAME[option1, option2]#comment",
+              "description": "Name and optional options that can be selected as enum and optional comment to show on hover"
+            }
           }
         }
       }
-    ]
+    ],
+    "commands": [{
+      "command": "statusBarEnvVar.setEnvVarValue",
+      "shortTitle": "Set Env var value",
+      "title": "Set value of a configured environmental variable"
+    }]
   },
   "main": "./out/extension.js",
   "scripts": {
