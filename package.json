@@ -31,7 +31,7 @@
         "properties": {
           "statusBarEnvVar.environmentVariableNames": {
             "type": "array",
-            "scope": "application",
+            "scope": "window",
             "title": "Environmental variables",
             "description": "List of environment variables to display in the status bar.",
             "items": {
