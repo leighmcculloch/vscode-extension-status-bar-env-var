@@ -1,10 +1,15 @@
 import * as vscode from 'vscode';
 
+type EnvVarMap = Map<string, {
+	sbarItem: vscode.StatusBarItem, 
+	options?: Array<string>
+}>;
+
 const envVarNamesConfig = "statusBarEnvVar.environmentVariableNames";
 const commandName = "statusBarEnvVar.setEnvVarValue";
 
 export function activate({ subscriptions }: vscode.ExtensionContext) {
-	var envVars: Map<string, {sbarItem: vscode.StatusBarItem,  options?: Array<string>}> = new Map();
+	var envVars: EnvVarMap = new Map();
 	subscriptions.push(vscode.workspace.onDidChangeConfiguration(e => {
 		if (e.affectsConfiguration(envVarNamesConfig)) {
 			updateStatusBarItems(subscriptions, envVars);
@@ -16,19 +21,25 @@ export function activate({ subscriptions }: vscode.ExtensionContext) {
 		(envVarName?: string) => {
 			(async (): Promise<string> => {
 				if (!envVarName) {
-					envVarName = await vscode.window.showQuickPick(Array.from(envVars.keys()), {
-						title: "Select environmental variable name",
-						canPickMany: false
-					} as vscode.QuickPickOptions);
+					envVarName = await vscode.window.showQuickPick(
+						Array.from(envVars.keys()), {
+							title: "Select environmental variable name",
+							canPickMany: false
+						}
+					);
 				}
-				return Promise.resolve(envVarName as string);
+				if (!envVarName) {
+					throw new Error("Env var selection cancelled");
+				}
+				return Promise.resolve(envVarName);
 			})().then((envVarName: string) => {
 				var envVar = envVars.get(envVarName);
-					setEnvVar(envVarName, envVar?.options).then(() => {
-						if (envVar) {
-							envVar.sbarItem.text = `${envVarName}=${process.env[envVarName as string]}`;
-						}
-					});
+				setEnvVar(envVarName, envVar?.options).then((value: string) => {
+					if (envVar) {
+						envVar.sbarItem.text = `${envVarName}=${value}`;
+					}
+				})
+				.catch(() => {});
 			});
 		}
 	));
@@ -36,34 +47,33 @@ export function activate({ subscriptions }: vscode.ExtensionContext) {
 	updateStatusBarItems(subscriptions, envVars);
 }
 
-async function setEnvVar(envVarName: string, options?: Array<string>) {
+async function setEnvVar(envVarName: string, options?: Array<string>): Promise<string> {
 	const prompt = `Set ${envVarName} to`;
-	let value = options?
+	let value = options ?
 		await vscode.window.showQuickPick(options, {
 			title: prompt,
 			canPickMany: false
-		} as vscode.QuickPickOptions) :
+		}):
 		await vscode.window.showInputBox({
 			prompt: prompt,
 			value: process.env[envVarName]
 		});
-	
+
 	if (value) {
 		process.env[envVarName] = value;
+		return value;
 	}
+	throw new Error("Set env var cancelled");
 }
 
-function updateStatusBarItems(subscriptions: vscode.ExtensionContext["subscriptions"], envVars: Map<string, {sbarItem: vscode.StatusBarItem,  options?: Array<string>}>) {
+function updateStatusBarItems(subscriptions: vscode.ExtensionContext["subscriptions"], envVars: EnvVarMap) {
 	if (envVars.size > 0) {
 		envVars.forEach((envVar) => {
 			envVar.sbarItem.dispose();
 		});
 		envVars.clear();
 	}
-	const envVarList = vscode.workspace.getConfiguration().get(envVarNamesConfig) as Array<string>;
-	if (!envVarList) {
-		return;
-	}
+	const envVarList = vscode.workspace.getConfiguration().get<Array<string>>(envVarNamesConfig) ?? [];
 
 	envVarList.forEach(envVar => {
 		let statusBarItem: vscode.StatusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 100);
@@ -81,10 +91,12 @@ function updateStatusBarItems(subscriptions: vscode.ExtensionContext["subscripti
 		let envVarName: string = t[0].trim();
 		statusBarItem.text = `${envVarName}=${process.env[envVarName]}`;
 
-		statusBarItem.command = {
+		let c: vscode.Command = {
+			title: `Set value of ${envVarName}`,
 			command: commandName,
 			arguments: [envVarName, options, statusBarItem]
-		} as vscode.Command;
+		};
+		statusBarItem.command = c;
 
 		subscriptions.push(statusBarItem);
 		envVars.set(envVarName, {sbarItem: statusBarItem, options: options});
