@@ -3,23 +3,28 @@
   "displayName": "Status Bar Env Var",
   "description": "Display an environment variable value in the status bar.",
   "license": "MIT",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "author": "Leigh McCulloch",
   "publisher": "leighmcculloch",
+  "contributors": [
+    "Seppe Stas"
+  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/leighmcculloch/vscode-extension-status-bar-env-var"
   },
   "icon": "resources/icon.png",
   "engines": {
-    "vscode": "^1.55.0"
+    "vscode": "^1.65.0"
   },
-  "extensionKind": ["ui"],
+  "extensionKind": [
+    "ui"
+  ],
   "categories": [
     "Other"
   ],
   "activationEvents": [
-    "*"
+    "onStartupFinished"
   ],
   "contributes": {
     "configuration": [
@@ -27,12 +32,24 @@
         "title": "Status Bar Env Var",
         "properties": {
           "statusBarEnvVar.environmentVariableNames": {
-            "type": "string",
-            "default": "DOCKER_HOST",
-            "description": "A comma-separated list of environment variables to display in the status bar.",
-            "scope": "application"
+            "type": "array",
+            "scope": "window",
+            "title": "Environmental variables",
+            "description": "List of environment variables to display in the status bar.",
+            "items": {
+              "type": "string",
+              "format": "NAME[option1, option2, ...]#comment",
+              "description": "Name and optional options that can be selected as enum and optional comment to show on hover"
+            }
           }
         }
+      }
+    ],
+    "commands": [
+      {
+        "command": "statusBarEnvVar.setEnvVarValue",
+        "shortTitle": "Set Env var value",
+        "title": "Set value of a configured environmental variable"
       }
     ]
   },
@@ -47,7 +64,7 @@
     "@types/glob": "^7.1.3",
     "@types/mocha": "^8.0.4",
     "@types/node": "^12.11.7",
-    "@types/vscode": "^1.55.0",
+    "@types/vscode": "^1.65.0",
     "@typescript-eslint/eslint-plugin": "^4.14.1",
     "@typescript-eslint/parser": "^4.14.1",
     "eslint": "^7.19.0",
