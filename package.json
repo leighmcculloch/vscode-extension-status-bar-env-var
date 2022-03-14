@@ -38,7 +38,7 @@
             "description": "List of environment variables to display in the status bar.",
             "items": {
               "type": "string",
-              "format": "NAME[option1, option2]#comment",
+              "format": "NAME[option1, option2, ...]#comment",
               "description": "Name and optional options that can be selected as enum and optional comment to show on hover"
             }
           }
